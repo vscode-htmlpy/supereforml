@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Grupo Supere — Conexão</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --black: #050507;
+    --deep: #0a0a10;
+    --surface: #0f0f18;
+    --border: rgba(255,255,255,0.07);
+    --gold: #c9a84c;
+    --gold-dim: rgba(201,168,76,0.15);
+    --gold-glow: rgba(201,168,76,0.4);
+    --white: #f0ede8;
+    --muted: rgba(240,237,232,0.45);
+    --accent: #7b6faa;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--black);
+    color: var(--white);
+    font-family: 'Space Mono', monospace;
+    min-height: 100vh;
+    overflow-x: hidden;
+    cursor: none;
+  }
+
+  /* Custom cursor */
+  .cursor {
+    position: fixed;
+    width: 12px; height: 12px;
+    background: var(--gold);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9999;
+    transform: translate(-50%,-50%);
+    transition: transform 0.1s, opacity 0.2s;
+    mix-blend-mode: difference;
+  }
+  .cursor-ring {
+    position: fixed;
+    width: 36px; height: 36px;
+    border: 1px solid var(--gold);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9998;
+    transform: translate(-50%,-50%);
+    transition: transform 0.18s ease, opacity 0.2s;
+    opacity: 0.5;
+  }
+
+  /* Background art */
+  .bg-art {
+    position: fixed; inset: 0;
+    pointer-events: none; z-index: 0;
+    overflow: hidden;
+  }
+  .bg-art::before {
+    content: '';
+    position: absolute;
+    top: -30%; left: -20%;
+    width: 70vw; height: 70vw;
+    border-radius: 50%;
+    background: radial-gradient(ellipse, rgba(123,111,170,0.07) 0%, transparent 65%);
+    animation: breathe 8s ease-in-out infinite;
+  }
+  .bg-art::after {
+    content: '';
+    position: absolute;
+    bottom: -20%; right: -15%;
+    width: 60vw; height: 60vw;
+    border-radius: 50%;
+    background: radial-gradient(ellipse, rgba(201,168,76,0.06) 0%, transparent 65%);
+    animation: breathe 10s ease-in-out infinite reverse;
+  }
+  @keyframes breathe {
+    0%,100% { transform: scale(1); }
+    50% { transform: scale(1.08); }
+  }
+
+  /* Grid lines */
+  .grid-bg {
+    position: fixed; inset: 0;
+    z-index: 0;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+    background-size: 60px 60px;
+    mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
+  }
+
+  /* Layout */
+  .container {
+    position: relative; z-index: 1;
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 0 28px 100px;
+  }
+
+  /* Header */
+  .hero {
+    padding: 80px 0 60px;
+    text-align: center;
+    position: relative;
+  }
+  .logo-mark {
+    display: inline-block;
+    width: 80px; height: 80px;
+    border: 2px solid var(--gold);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 32px;
+    position: relative;
+    background: radial-gradient(circle, rgba(201,168,76,0.1) 0%, transparent 70%);
+    overflow: hidden;
+  }
+  .logo-mark img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+    opacity: 0.95;
+  }
+  .logo-mark::before {
+    content: '';
+    position: absolute; inset: 0;
+    border: 2px solid var(--gold);
+    border-radius: 50%;
+    box-shadow: inset 0 0 24px rgba(201,168,76,0.15), 0 0 24px rgba(201,168,76,0.1);
+  }
+  .logo-inner {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px;
+    color: var(--gold);
+    display: block;
+  }
+  @keyframes spin-slow {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+  .hero h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(42px, 10vw, 72px);
+    font-weight: 300;
+    letter-spacing: -0.01em;
+    line-height: 1.15;
+    margin-bottom: 24px;
+  }
+  .hero h1 em {
+    font-style: italic;
+    color: var(--gold);
+  }
+  .hero p {
+    font-size: 13px;
+    color: var(--muted);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    line-height: 2;
+  }
+  .hero .subtitle {
+    font-size: 12px;
+    color: var(--gold);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-top: 20px;
+    font-weight: 600;
+  }
+
+  .divider {
+    display: flex; align-items: center; gap: 16px;
+    margin: 48px 0 40px;
+    opacity: 0.4;
+  }
+  .divider::before, .divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  }
+  .divider span {
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--gold);
+  }
+
+  /* Step system */
+  .step {
+    display: none;
+    animation: fadeUp 0.5s ease both;
+  }
+  .step.active { display: block; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Progress bar */
+  .progress-bar {
+    position: fixed;
+    top: 0; left: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--gold), var(--accent));
+    transition: width 0.5s ease;
+    z-index: 100;
+  }
+
+  /* Step label */
+  .step-label {
+    display: flex; align-items: center; gap: 12px;
+    margin-bottom: 32px;
+  }
+  .step-num {
+    font-size: 11px;
+    color: var(--gold);
+    letter-spacing: 0.2em;
+    border: 1px solid var(--gold-dim);
+    padding: 4px 10px;
+    border-radius: 2px;
+    background: var(--gold-dim);
+  }
+  .step-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 32px;
+    font-weight: 300;
+    font-style: italic;
+  }
+
+  /* Input styles */
+  .field {
+    margin-bottom: 28px;
+  }
+  .field label {
+    display: block;
+    font-size: 11px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 12px;
+    font-weight: 500;
+  }
+  .field input,
+  .field textarea,
+  .field select {
+    width: 100%;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid var(--border);
+    color: var(--white);
+    font-family: 'Space Mono', monospace;
+    font-size: 15px;
+    padding: 14px 0;
+    outline: none;
+    transition: border-color 0.3s;
+    appearance: none;
+    -webkit-appearance: none;
+    line-height: 1.6;
+  }
+  .field input:focus,
+  .field textarea:focus,
+  .field select:focus {
+    border-bottom-color: var(--gold);
+    box-shadow: 0 2px 0 var(--gold-dim);
+  }
+  .field input::placeholder,
+  .field textarea::placeholder { color: rgba(240,237,232,0.25); }
+  .field textarea {
+    resize: none;
+    min-height: 100px;
+    line-height: 1.8;
+  }
+  .field select option {
+    background: #1a1a24;
+    color: var(--white);
+  }
+
+  /* Radio / option cards */
+  .options {
+    display: flex; flex-direction: column; gap: 10px;
+    margin-bottom: 32px;
+  }
+  .option-card {
+    border: 1px solid var(--border);
+    padding: 16px 20px;
+    cursor: pointer;
+    transition: all 0.25s;
+    position: relative;
+    overflow: hidden;
+  }
+  .option-card::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 0;
+    background: var(--gold-dim);
+    transition: width 0.3s;
+  }
+  .option-card:hover::before,
+  .option-card.selected::before { width: 100%; }
+  .option-card.selected {
+    border-color: var(--gold);
+  }
+  .option-card input[type=radio] { display: none; }
+  .option-label {
+    font-size: 14px;
+    position: relative; z-index: 1;
+    display: flex; justify-content: space-between; align-items: center;
+    font-weight: 400;
+  }
+  .option-label .check {
+    width: 18px; height: 18px;
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.3s;
+    flex-shrink: 0;
+  }
+  .option-card.selected .check {
+    border-color: var(--gold);
+    background: var(--gold);
+    box-shadow: 0 0 12px var(--gold-glow);
+  }
+  .option-card.selected .check::after {
+    content: '✓';
+    font-size: 10px;
+    color: var(--black);
+  }
+
+  /* Toggle for yes/no */
+  .toggle-group {
+    display: flex; gap: 12px;
+    margin-bottom: 28px;
+  }
+  .toggle-btn {
+    flex: 1;
+    padding: 16px 14px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.25s;
+    font-weight: 500;
+  }
+  .toggle-btn:hover { border-color: rgba(201,168,76,0.4); color: var(--white); }
+  .toggle-btn.active {
+    border-color: var(--gold);
+    color: var(--gold);
+    background: var(--gold-dim);
+    box-shadow: 0 0 20px rgba(201,168,76,0.1);
+  }
+
+  /* Conditional section */
+  .conditional { display: none; }
+  .conditional.show {
+    display: block;
+    animation: fadeUp 0.4s ease both;
+  }
+
+  /* Phone number field */
+  .phone-wrap {
+    display: flex; gap: 0;
+  }
+  .phone-wrap .prefix {
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid var(--border);
+    color: var(--gold);
+    font-family: 'Space Mono', monospace;
+    font-size: 14px;
+    padding: 12px 12px 12px 0;
+    width: 50px;
+  }
+  .phone-wrap input {
+    border-left: none;
+  }
+
+  /* Button */
+  .btn {
+    position: relative;
+    display: inline-flex;
+    align-items: center; gap: 12px;
+    padding: 18px 48px;
+    background: transparent;
+    border: 1px solid var(--gold);
+    color: var(--gold);
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.3s;
+    overflow: hidden;
+    margin-top: 12px;
+    font-weight: 500;
+  }
+  .btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--gold);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.35s ease;
+  }
+  .btn:hover::before { transform: scaleX(1); }
+  .btn:hover { color: var(--black); }
+  .btn span { position: relative; z-index: 1; }
+  .btn-arrow { font-size: 16px; position: relative; z-index: 1; transition: transform 0.3s; }
+  .btn:hover .btn-arrow { transform: translateX(4px); }
+
+  .btn-row {
+    display: flex; justify-content: flex-end;
+    padding-top: 8px;
+  }
+
+  /* Notification section */
+  .notify-card {
+    border: 1px solid var(--border);
+    padding: 28px;
+    position: relative;
+    margin-bottom: 32px;
+  }
+  .notify-card::before {
+    content: '✦';
+    position: absolute;
+    top: -10px; left: 24px;
+    font-size: 14px;
+    color: var(--gold);
+    background: var(--black);
+    padding: 0 8px;
+  }
+  .notify-card h3 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 24px;
+    font-weight: 300;
+    margin-bottom: 12px;
+  }
+  .notify-card p {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.9;
+    margin-bottom: 20px;
+  }
+
+  /* Success screen */
+  .success-screen {
+    text-align: center;
+    padding: 60px 0;
+  }
+  .success-icon {
+    width: 80px; height: 80px;
+    border: 1px solid var(--gold);
+    border-radius: 50%;
+    margin: 0 auto 32px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 28px;
+    position: relative;
+    animation: pulse-gold 2s ease-in-out infinite;
+  }
+  @keyframes pulse-gold {
+    0%,100% { box-shadow: 0 0 0 0 rgba(201,168,76,0); }
+    50% { box-shadow: 0 0 0 16px rgba(201,168,76,0); }
+  }
+  .success-icon::after {
+    content: '';
+    position: absolute; inset: -12px;
+    border: 1px dashed rgba(201,168,76,0.2);
+    border-radius: 50%;
+    animation: spin-slow 15s linear infinite;
+  }
+  .success-screen h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 48px;
+    font-weight: 300;
+    margin-bottom: 20px;
+    line-height: 1.2;
+  }
+  .success-screen h2 em { color: var(--gold); font-style: italic; }
+  .success-screen p {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 2;
+    letter-spacing: 0.05em;
+  }
+  .success-screen .detail-card {
+    margin: 40px 0;
+    border: 1px solid var(--border);
+    padding: 24px;
+    text-align: left;
+  }
+  .detail-row {
+    display: flex; justify-content: space-between;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+    gap: 16px;
+  }
+  .detail-row:last-child { border-bottom: none; }
+  .detail-row .key { color: var(--muted); font-weight: 500; }
+  .detail-row .val { color: var(--white); text-align: right; }
+
+  /* Floating label effect */
+  .field-hint {
+    font-size: 10px;
+    color: rgba(201,168,76,0.5);
+    margin-top: 6px;
+    letter-spacing: 0.1em;
+  }
+
+  /* Section separator */
+  .section-sep {
+    display: flex; align-items: center; gap: 16px;
+    margin: 36px 0;
+  }
+  .section-sep::before, .section-sep::after {
+    content: ''; flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+  .section-sep span {
+    font-size: 9px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.2);
+  }
+
+  /* Error msg */
+  .error-msg {
+    font-size: 10px;
+    color: #e06c6c;
+    letter-spacing: 0.1em;
+    margin-top: 6px;
+    display: none;
+  }
+  .error-msg.show { display: block; }
+
+  /* Responsive */
+  @media (max-width: 480px) {
+    .hero { padding: 60px 0 40px; }
+    .toggle-group { flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+<div class="progress-bar" id="progressBar" style="width:0%"></div>
+<div class="bg-art"></div>
+<div class="grid-bg"></div>
+
+<div class="container">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="logo-mark"><img src="supere.png" alt="Igreja batista Supere"></div>
+    <h1>Bem-vindo(a) à nossa<br><em>família.</em></h1>
+    <p class="subtitle">Igreja Batista Supere</p>
+    <p>Grupo Supere &nbsp;·&nbsp; Pós Celebração<br>Queremos te conhecer melhor</p>
+  </div>
+
+  <!-- STEP 1 — Você é novo? -->
+  <div class="step active" id="step1">
+    <div class="step-label">
+      <span class="step-num">01</span>
+      <span class="step-title">Como você chegou até nós?</span>
+    </div>
+
+    <div class="options" id="originOptions">
+      <label class="option-card" onclick="selectOption(this, 'origin', 'familia')">
+        <input type="radio" name="origin" value="familia">
+        <div class="option-label">
+          <span>Já sou da família espiritual do Supere</span>
+          <span class="check"></span>
+        </div>
+      </label>
+      <label class="option-card" onclick="selectOption(this, 'origin', 'novo')">
+        <input type="radio" name="origin" value="novo">
+        <div class="option-label">
+          <span>Estou chegando pela primeira vez ✨</span>
+          <span class="check"></span>
+        </div>
+      </label>
+    </div>
+    <p class="error-msg" id="err-origin">Por favor, selecione uma opção acima.</p>
+
+    <!-- Novo visitante -->
+    <div class="conditional" id="cond-novo">
+      <div class="divider"><span>sobre você</span></div>
+      <div class="field">
+        <label>Como você conheceu a nossa igreja?</label>
+        <textarea id="comoConheceu" placeholder="Nos conte uma históriazinha! Viu um post, amigo chamou, pesquisou na internet..."></textarea>
+      </div>
+      <div class="field">
+        <label>Você conhece alguém daqui?</label>
+        <textarea id="conheceAlguem" placeholder="Se sim, conta quem! Pode ser um amigo, colega, membro, ou só alguém que já viu por aqui..."></textarea>
+      </div>
+      <div class="field">
+        <label>O que te chamou atenção?</label>
+        <textarea id="oQueChamou" placeholder="Pode ser o conteúdo, a comunidade, a mensagem, os valores... Oquê?"></textarea>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn" onclick="goToStep(2)"><span>Continuar</span><span class="btn-arrow">→</span></button>
+    </div>
+  </div>
+
+  <!-- STEP 2 — Dados pessoais -->
+  <div class="step" id="step2">
+    <div class="step-label">
+      <span class="step-num">02</span>
+      <span class="step-title">Nos diga quem você é</span>
+    </div>
+
+    <div class="field">
+      <label>Seu nome completo</label>
+      <input type="text" id="nomeCompleto" placeholder="Como prefere ser chamado(a)?">
+    </div>
+    <div class="field">
+      <label>Sua idade</label>
+      <input type="number" id="idade" placeholder="Ex: 28" min="1" max="120">
+    </div>
+    <div class="field">
+      <label>Data de aniversário</label>
+      <input type="date" id="aniversario" style="color-scheme: dark;">
+      <p class="field-hint">Para te surpreender no seu dia especial ✦</p>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn" onclick="goToStep(3)"><span>Continuar</span><span class="btn-arrow">→</span></button>
+    </div>
+  </div>
+
+  <!-- STEP 3 — Família espiritual & Grupo -->
+  <div class="step" id="step3">
+    <div class="step-label">
+      <span class="step-num">03</span>
+      <span class="step-title">Sua jornada no Supere</span>
+    </div>
+
+    <p style="font-size:11px; color:var(--muted); line-height:1.9; margin-bottom:28px; letter-spacing:0.05em;">
+      Queremos entender melhor onde você está nessa caminhada espiritual.
+    </p>
+
+    <div class="section-sep"><span>família espiritual</span></div>
+
+    <div class="field" style="margin-bottom:8px;">
+      <label>Você faz parte da nossa família espiritual?</label>
+    </div>
+    <div class="toggle-group">
+      <button class="toggle-btn" id="familia-sim" onclick="toggleBtn('familia', 'sim')"><span>Sim, sou da família</span></button>
+      <button class="toggle-btn" id="familia-nao" onclick="toggleBtn('familia', 'nao')"><span>Ainda não</span></button>
+    </div>
+    <p class="error-msg" id="err-familia">Por favor, selecione uma opção.</p>
+
+    <div class="section-sep" style="margin-top:8px;"><span>grupo supere</span></div>
+
+    <div class="field" style="margin-bottom:8px;">
+      <label>Você tem ou participa de algum Grupo Supere?</label>
+    </div>
+    <div class="toggle-group">
+      <button class="toggle-btn" id="grupo-sim" onclick="toggleBtn('grupo', 'sim')"><span>Sim, tenho um grupo</span></button>
+      <button class="toggle-btn" id="grupo-nao" onclick="toggleBtn('grupo', 'nao')"><span>Não tenho</span></button>
+    </div>
+    <p class="error-msg" id="err-grupo">Por favor, selecione uma opção.</p>
+
+    <div class="conditional" id="cond-grupo">
+      <div class="field">
+        <label>Qual é o nome do seu Grupo Supere?</label>
+        <input type="text" id="nomeGrupo" placeholder="Nome ou identificação do grupo">
+      </div>
+      <div class="field">
+        <label>Cidade / Região do grupo</label>
+        <input type="text" id="cidadeGrupo" placeholder="Ex: Rio de Janeiro — Zona Norte">
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn" onclick="goToStep(4)"><span>Continuar</span><span class="btn-arrow">→</span></button>
+    </div>
+  </div>
+
+  <!-- STEP 4 — Notificações -->
+  <div class="step" id="step4">
+    <div class="step-label">
+      <span class="step-num">04</span>
+      <span class="step-title">Fique conectado(a)</span>
+    </div>
+
+    <div class="notify-card">
+      <h3>Receber notificações</h3>
+      <p>
+        Avisamos sobre celebrações, eventos especiais, palavras de encorajamento
+        e novidades do Grupo Supere. Tudo com amor, sem spam.
+      </p>
+      <div class="toggle-group">
+        <button class="toggle-btn" id="notify-sim" onclick="toggleBtn('notify', 'sim')"><span>Sim, quero receber</span></button>
+        <button class="toggle-btn" id="notify-nao" onclick="toggleBtn('notify', 'nao')"><span>Não, obrigado(a)</span></button>
+      </div>
+    </div>
+    <p class="error-msg" id="err-notify">Por favor, selecione uma opção.</p>
+
+    <div class="conditional" id="cond-notify">
+      <div class="field">
+        <label>Seu WhatsApp / Telefone</label>
+        <div class="phone-wrap">
+          <span class="prefix">+55</span>
+          <input type="tel" id="telefone" placeholder="(11) 99999-9999" oninput="formatPhone(this)">
+        </div>
+        <p class="field-hint">Apenas para envio de mensagens via WhatsApp</p>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn" onclick="submitForm()"><span>Enviar</span><span class="btn-arrow">✦</span></button>
+    </div>
+  </div>
+
+  <!-- SUCCESS -->
+  <div class="step" id="stepSuccess">
+    <div class="success-screen">
+      <div class="success-icon">✦</div>
+      <h2>Recebemos<br>com <em>amor.</em></h2>
+      <p>Suas informações foram registradas.<br>
+      Agora você faz parte da nossa lista de conexões.<br>
+      Que alegria ter você com a gente! 🌿</p>
+
+      <div class="detail-card" id="summaryCard">
+        <!-- preenchido via JS -->
+      </div>
+
+      <p style="font-size:10px; letter-spacing:0.15em; color:rgba(201,168,76,0.5); text-transform:uppercase;">
+        Grupo Supere &nbsp;·&nbsp; Que Deus te abençoe
+      </p>
+    </div>
+  </div>
+
+</div><!-- /container -->
+
+<script>
+  // Cursor
+  const cursor = document.getElementById('cursor');
+  const ring = document.getElementById('cursorRing');
+  document.addEventListener('mousemove', e => {
+    cursor.style.left = e.clientX + 'px';
+    cursor.style.top = e.clientY + 'px';
+    setTimeout(() => {
+      ring.style.left = e.clientX + 'px';
+      ring.style.top = e.clientY + 'px';
+    }, 60);
+  });
+
+  // State
+  const state = {
+    origin: null,
+    comoConheceu: '',
+    conheceAlguem: '',
+    oQueChamou: '',
+    quemConvidou: '',
+    nome: '',
+    idade: '',
+    aniversario: '',
+    familia: null,
+    grupo: null,
+    nomeGrupo: '',
+    cidadeGrupo: '',
+    notify: null,
+    telefone: ''
+  };
+
+  let currentStep = 1;
+  const totalSteps = 4;
+
+  function updateProgress(step) {
+    const pct = ((step - 1) / totalSteps) * 100;
+    document.getElementById('progressBar').style.width = pct + '%';
+  }
+
+  function selectOption(el, group, value) {
+    document.querySelectorAll(`.option-card`).forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+    state[group] = value;
+    document.getElementById('err-origin').classList.remove('show');
+
+    if (group === 'origin') {
+      const condNovo = document.getElementById('cond-novo');
+      if (value === 'novo') {
+        condNovo.classList.add('show');
+      } else {
+        condNovo.classList.remove('show');
+      }
+    }
+  }
+
+  function toggleBtn(group, val) {
+    document.getElementById(group + '-sim').classList.toggle('active', val === 'sim');
+    document.getElementById(group + '-nao').classList.toggle('active', val === 'nao');
+    state[group] = val;
+    document.getElementById('err-' + group)?.classList.remove('show');
+
+    if (group === 'grupo') {
+      document.getElementById('cond-grupo').classList.toggle('show', val === 'sim');
+    }
+    if (group === 'notify') {
+      document.getElementById('cond-notify').classList.toggle('show', val === 'sim');
+    }
+  }
+
+  function formatPhone(input) {
+    let v = input.value.replace(/\D/g, '');
+    if (v.length > 11) v = v.slice(0, 11);
+    if (v.length >= 7) {
+      v = '(' + v.slice(0,2) + ') ' + v.slice(2,7) + '-' + v.slice(7);
+    } else if (v.length >= 3) {
+      v = '(' + v.slice(0,2) + ') ' + v.slice(2);
+    }
+    input.value = v;
+  }
+
+  function goToStep(next) {
+    let valid = true;
+
+    if (currentStep === 1) {
+      if (!state.origin) {
+        document.getElementById('err-origin').classList.add('show');
+        valid = false;
+      }
+    }
+    if (currentStep === 2) {
+      const nome = document.getElementById('nomeCompleto').value.trim();
+      if (!nome) {
+        document.getElementById('nomeCompleto').style.borderBottomColor = '#e06c6c';
+        valid = false;
+      }
+      state.nome = nome;
+      state.idade = document.getElementById('idade').value;
+      state.aniversario = document.getElementById('aniversario').value;
+    }
+    if (currentStep === 3) {
+      if (!state.familia) {
+        document.getElementById('err-familia').classList.add('show');
+        valid = false;
+      }
+      if (!state.grupo) {
+        document.getElementById('err-grupo').classList.add('show');
+        valid = false;
+      }
+      if (state.grupo === 'sim') {
+        state.nomeGrupo = document.getElementById('nomeGrupo').value;
+        state.cidadeGrupo = document.getElementById('cidadeGrupo').value;
+      }
+    }
+
+    if (!valid) return;
+
+    document.getElementById('step' + currentStep).classList.remove('active');
+    currentStep = next;
+    document.getElementById('step' + next).classList.add('active');
+    updateProgress(next);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function submitForm() {
+    let valid = true;
+    if (!state.notify) {
+      document.getElementById('err-notify').classList.add('show');
+      valid = false;
+    }
+    if (state.notify === 'sim') {
+      const tel = document.getElementById('telefone').value.trim();
+      if (!tel) {
+        document.getElementById('telefone').style.borderBottomColor = '#e06c6c';
+        valid = false;
+      }
+      state.telefone = tel;
+    }
+    if (!valid) return;
+
+    state.comoConheceu = document.getElementById('comoConheceu')?.value || '';
+    state.conheceAlguem = document.getElementById('conheceAlguem')?.value || '';
+    state.oQueChamou = document.getElementById('oQueChamou')?.value || '';
+
+    buildSummary();
+    document.getElementById('step4').classList.remove('active');
+    document.getElementById('stepSuccess').classList.add('active');
+    document.getElementById('progressBar').style.width = '100%';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function buildSummary() {
+    const fmt = (v, fallback = '—') => v || fallback;
+    const aniversario = state.aniversario ? new Date(state.aniversario + 'T00:00:00').toLocaleDateString('pt-BR') : '—';
+    const rows = [
+      { key: 'Nome', val: fmt(state.nome) },
+      { key: 'Idade', val: state.idade ? state.idade + ' anos' : '—' },
+      { key: 'Aniversário', val: aniversario },
+      state.origin === 'novo' && state.comoConheceu ? { key: 'Como conheceu', val: state.comoConheceu } : null,
+      state.origin === 'novo' && state.conheceAlguem ? { key: 'Conhece alguém', val: state.conheceAlguem } : null,
+      state.origin === 'novo' && state.oQueChamou ? { key: 'O que chamou atenção', val: state.oQueChamou } : null,
+      { key: 'Família espiritual', val: state.familia === 'sim' ? 'Sim ✦' : 'Não' },
+      { key: 'Grupo Supere', val: state.grupo === 'sim' ? (state.nomeGrupo || 'Sim') : 'Não' },
+      state.grupo === 'sim' && state.cidadeGrupo ? { key: 'Cidade do grupo', val: state.cidadeGrupo } : null,
+      { key: 'Notificações', val: state.notify === 'sim' ? 'Aceitas ✦' : 'Não' },
+      state.notify === 'sim' && state.telefone ? { key: 'WhatsApp', val: '+55 ' + state.telefone } : null,
+    ].filter(Boolean);
+
+    document.getElementById('summaryCard').innerHTML = rows.map(r =>
+      `<div class="detail-row"><span class="key">${r.key}</span><span class="val">${r.val}</span></div>`
+    ).join('');
+  }
+</script>
+</body>
+</html>
